@@ -1,0 +1,174 @@
+﻿@{
+    ViewBag.Title = "DataTable";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using MVCTrainningSample.Models;
+@using MVCTrainningSample.Common;
+@model ProductModel
+
+<div class="row">
+    <div class="col-lg-12" id="divEditProductDetail" style="display:none;">
+        <br />
+        <h4>Edit Product Detail</h4>
+        <div class="col-lg-12">
+            @using (Ajax.BeginForm("EditProduct", "Home", 
+                new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnProductSaveSuccess()" }, 
+                new { @class = "form-horizontal", id = "frmEditProduct" }))
+            {
+                <div class="panel-body">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="lblProductName" class="col-sm-2 control-label">Product Name</label>
+                            <div class="col-sm-9">
+                                @Html.TextBoxFor(p => p.ProductDetail.Name, new { @class = "form-control", id = "txtEditProductName" })
+                                @Html.HiddenFor(p => p.ProductDetail.ID, new { id = "hidEditProductID" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lblProductName" class="col-sm-2 control-label">Product Type</label>
+                            <div class="col-sm-9">
+                                @Html.DropDownListFor(p => p.ProductDetail.Type, new SelectList(Model.ProductTypeList, "Name", "Name"), "Select ProductType", new { @class = "form-control", id = "txtEditProductType" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lblProductName" class="col-sm-2 control-label">Description</label>
+                            <div class="col-sm-9">
+                                @Html.TextAreaFor(p => p.ProductDetail.Description, new { @class = "form-control", id = "txtEditProductDesc" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lblProductName" class="col-sm-2 control-label">Price</label>
+                            <div class="col-sm-9">
+                                @Html.TextBoxFor(p => p.ProductDetail.Price, new { @class = "form-control", id = "txtEditProductPrice" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lblProductName" class="col-sm-2 control-label">Quentity</label>
+                            <div class="col-sm-9">
+                                @Html.TextBoxFor(p => p.ProductDetail.Quantity, new { @class = "form-control", id = "txtEditProductQty" })
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-right:120px;">
+                            <div class="pull-right">
+                                <button id="btnSaveProduct" type="button" class="btn btn-success">Save Product</button>
+                                <button id="btnCancelProduct" type="button" class="btn btn-warning">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div>&nbsp;</div>
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title pull-left">Product Detail</h4>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-12 table-responsive">
+                        <table id="product-detail-table" class="table table-hover table-condensed table-striped">
+                            <thead>
+                                <tr class="newGHead">
+                                    <th>Action</th>
+                                    <th>Product Name</th>
+                                    <th>Product Type</th>
+                                    <th>Product Description</th>
+                                    <th>Product Price</th>
+                                    <th>Product Quentity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (Product objProduct in Model.ProductList)
+                                {
+                                    <tr>
+                                        <td>
+                                            <button type="button" id='@objProduct.ID' class="btn btn-sm btn-primary" onclick='EditProductDetail(this)'>Edit</button>
+                                            <button type="button" id="@objProduct.ID" class="btn btn-sm btn-danger" onclick="DeleteProductDetail(this)">Delete</button>
+                                        </td>
+                                        <td>@objProduct.Name</td>
+                                        <td>@objProduct.Type</td>
+                                        <td>@objProduct.Description</td>
+                                        <td>@objProduct.Price</td>
+                                        <td>@objProduct.Quantity</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var oTable = $('#product-detail-table').dataTable({
+            "bSort": true,
+            "dom": '<rf<t>lip><"clear">',
+            "order": [[1, "asc"]],
+            "bFilter": false,
+            "scrollCollapse": true,
+            "lengthChange": true,
+            "iDisplayLength": 10,
+            "lengthMenu": [[10, 20, 50, 100, 200], [10, 20, 50, 100, 200]],
+            "sPaginationType": "full_numbers",
+        });
+
+        $('#btnCancelProduct').click(function () {
+            $('#divEditProductDetail').css('display', 'none');
+            $('#hidEditProductID').val('');
+            $('#txtEditProductName').val('');
+            $('#txtEditProductType').val('');
+            $('#txtEditProductDesc').val('');
+            $('#txtEditProductPrice').val('');
+            $('#txtEditProductQty').val('');
+        });
+        $('#btnSaveProduct').click(function () {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveProduct", "Home")',
+                data: $("#frmEditProduct").serialize(),
+                success: function (data) {
+                    if (data.outcome == true) {
+                        window.location.href = '/Home/Product';
+                    }
+                }
+            });
+        });
+
+    });
+
+    function DeleteProductDetail(btnDeleteProduct) {
+        var result = confirm("Are you sure that you want to permanently delete this record?")
+     var productId = $(btnDeleteProduct).attr('id');
+     if (result == true) {
+         var url = '@Url.Action("DeleteProduct", "Home", new { id = "_productId_" })'.replace("_productId_", productId);
+         $.get(url, function (data) {
+             if (data.outcome == true) {
+                 window.location.href = '/Home/Product';
+             }
+
+         });
+     }
+    }
+
+    function EditProductDetail(btnEditProduct) {
+        var productId = $(btnEditProduct).attr('id');
+        var url = '@Url.Action("EditProduct", "Home", new { id = "_productId_" })'.replace("_productId_", productId);
+
+        $.get(url, function (data) {
+            console.log(data);
+            var product = data.data;
+            $('#hidEditProductID').val(product.ID);
+            $('#txtEditProductName').val(product.Name);
+            $('#txtEditProductType').val(product.Type);
+            $('#txtEditProductDesc').val(product.Description);
+            $('#txtEditProductPrice').val(product.Price);
+            $('#txtEditProductQty').val(product.Quantity);
+            $('#divEditProductDetail').css('display', 'block');
+        });
+    }
+</script>

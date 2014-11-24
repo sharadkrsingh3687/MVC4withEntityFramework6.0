@@ -1,0 +1,104 @@
+﻿@using MVCTrainningSample.Common;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/plugins")
+</head>
+<body>
+    <!-- begin template -->
+    <div class="navbar navbar-custom navbar-fixed-top">
+        <div class="navbar-header">
+            <a class="navbar-brand" href='@Url.Action("Index","Home")'>Trainning Sample Application</a>
+            <a class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="@Html.EncodedUrl("NewProduct", "Home", new { id = "14" })">New Product</a></li>
+                <li><a href="@Url.Action("Product","Home")">Product Detail</a></li>
+                <li>
+                    @Ajax.ActionLink("New ProductType", "ProductType", "Home", null, new AjaxOptions
+                                    {
+                                        HttpMethod = "Get",
+                                        InsertionMode = InsertionMode.Replace,
+                                        UpdateTargetId = "divModelBody",
+                                        OnComplete = "ShowPopupDialogBox()",
+                                    }, new { @id = "lnkProductTypeLink" })
+                    @*<a href="@Url.Action("ProductType","Home")" onclick="return ShowPopupDialogBox(this);">New Product Type</a>*@
+                </li>
+            </ul>
+            <ul class="nav navbar-top-links navbar-right">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <span></span>
+                        <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li>
+                            <a href='@Url.Action("UserProfile","Account")'><i class="fa fa-user fa-fw"></i> User Profile</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href='@Url.Action("LogOut","Account")'><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="container-fluid" id="main">
+        @RenderBody()
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="divModelProductType" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Add ProductType</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="divModelBody"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btnSaveProductType" class="btn btn-primary">Save ProductType</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#btnSaveProductType').click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveProductType", "Home")',
+                    data: $("#frmEditProductType").serialize(),
+                    success: function (result) {
+                        if (result.outcome == true) {
+                            window.location.href = '/Home/Index';
+                        }
+                    }
+                });
+            })
+        });
+        function ShowPopupDialogBox(lnkButton) {
+            $('#lnkProductTypeLink').attr('data-toggle', 'modal');
+            $('#divModelProductType').modal('show');
+        }
+    </script>
+    
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,96 @@
+﻿@{
+    ViewBag.Title = "New Product";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using MVCTrainningSample.Models;
+@model ProductModel
+<div id="divNewProductDetail">
+    <div class="row" style="overflow-y:auto;">
+        <div class="col-lg-12">
+            <div class="col-sm-6">
+                <h3>Add New Product Detail</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12">
+        <div class="col-lg-12">
+            @using (Ajax.BeginForm("SaveProduct", "Home",
+                    new AjaxOptions
+                    {
+                        HttpMethod = "POST",
+                        OnSuccess = "OnProductSaveSuccess()"
+                        /*, InsertionMode = InsertionMode.Replace, UpdateTargetId = "divNewProductDetail"*/
+                    },
+                    new { @class = "form-horizontal", id = "frmEditProduct" }))
+            {
+                <div class="panel-body">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="lblProductName" class="col-sm-2 control-label">Product Name</label>
+                            <div class="col-sm-9">
+                                @Html.TextBoxFor(p => p.ProductDetail.Name, new { @class = "form-control", id = "txtEditProductName" })
+                                @Html.HiddenFor(p => p.ProductDetail.ID, new { id = "hidEditProductID" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lblProductName" class="col-sm-2 control-label">Product Type</label>
+                            <div class="col-sm-9">
+                                @Html.DropDownListFor(p => p.ProductDetail.Type, new SelectList(ViewBag.ProductTypeList, "Name", "Name"), "Select ProductType", new { @class = "form-control", id = "txtEditProductType" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lblProductName" class="col-sm-2 control-label">Description</label>
+                            <div class="col-sm-9">
+                                @Html.TextAreaFor(p => p.ProductDetail.Description, new { @class = "form-control", id = "txtEditProductDesc" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lblProductName" class="col-sm-2 control-label">Price</label>
+                            <div class="col-sm-9">
+                                @Html.TextBoxFor(p => p.ProductDetail.Price, new { @class = "form-control", id = "txtEditProductPrice" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lblProductName" class="col-sm-2 control-label">Quentity</label>
+                            <div class="col-sm-9">
+                                @Html.TextBoxFor(p => p.ProductDetail.Quantity, new { @class = "form-control", id = "txtEditProductQty" })
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-right:120px;">
+                            <div class="pull-right">
+                                <button id="btnSaveProduct" type="submit" class="btn btn-success">Save Product</button>
+                                <button id="btnCancelProduct" type="button" class="btn btn-warning">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div>&nbsp;</div>
+    
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#lnkProductTypeLink').attr('data-toggle', 'model');
+        $('#lnkProductTypeLink').attr('data-target', '#divModelProductType');
+
+        $('#btnCancelProduct').click(function () {
+            window.location.href = '/Home/Index';
+        });
+    });
+    function OnProductSaveSuccess() {
+        //$('#divEditProductDetail').css('display', 'none');
+        $('#hidEditProductID').val('');
+        $('#txtEditProductName').val('');
+        $('#txtEditProductType').val('');
+        $('#txtEditProductDesc').val('');
+        $('#txtEditProductPrice').val('');
+        $('#txtEditProductQty').val('');
+        window.location.href = '/Home/Product';
+    }
+
+    //function ShowModelPopup() {
+         
+    //}
+</script>
